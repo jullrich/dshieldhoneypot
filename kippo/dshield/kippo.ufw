@@ -1,0 +1,4 @@
+[kippo]
+title=kippo
+description=kippo ssh honeypot
+ports=2222/tcp

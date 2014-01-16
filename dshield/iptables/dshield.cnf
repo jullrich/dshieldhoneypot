@@ -1,0 +1,166 @@
+########################################################
+#
+#  Sample Dshield log parser configuration file
+#
+#  Should go in /etc/dshield.cnf
+#
+#  (Note:  Do *not* quote values with " characters.  Thank you.)
+
+#  Enter the address you used to register with dshield.
+
+from=nobody@nowhere.com
+
+# and the DShield UserID associated with this email
+# address.
+
+userid=0
+
+#  Email address you would like to send logs to 
+#  This should be 'report@dshield.org'
+#  But send to yourself while configuring and testing
+#  Also, see the 'linecnt' and 'whereto' variables, below
+
+to=report@dshield.org
+
+#  The 'cc' and 'bcc' address are copied on all reports.
+
+cc=
+bcc=
+
+# Name of the log file. This should be the syslog as this
+# client processes 'syslog' reports.  Unless your firewall logs go to 
+# a different file....
+
+log=/var/log/messages
+
+# Regular expression that must match in each log line that is processed
+# Needed if your log contains all kinds of different things, not just
+# packet filter log lines.
+# If not defined, then it will use a default that *may* work for you.
+# (The default is hardwired in the parser subroutine at the end of the script.)
+# If defined, then it is typically used in the parser like
+#        return 0 unless ( $line =~ /$line_filter/ )
+# where '$line' contains the log line we are looking at.
+# 'return 0' means that this log line won't be processed if the match fails.
+#
+# See http://www.dshield.org/regex.html for information on regular expressions.
+#
+# ipchains users might use
+#
+# line_filter=input DENY
+#
+# (input DENY is the default for the ipchains parser, however, so you really
+# don't need to defne it, if input DENY is correct for your log.) 
+
+#
+# regex to *exclude* log lines for whatever reason.
+
+# line_exclude=
+
+# What program (and options) to use for sending mail
+# (When 'whereto=MAIL')
+
+sendmail=/usr/sbin/sendmail -oi -t
+
+# What to do with the output.  If defined as 'MAIL' then send the converted
+# log to the addresses defined above.  (i.e. normal DShield operation.)
+# But, if defined as a file, then will write the converted log, including
+# mail headers, to a file.  You would use this if sending as mail isn't what
+# you want to do.  The assumptuon would be that you'd "wrap" this script in
+# another script that would do something else with the converted file.
+# Possibly FTPing or SCPing it to a different machine that has a mail server.
+# Or for testing and debugging, so that you don't have to fool with mail until
+# you have it working right.
+
+whereto=MAIL
+
+# These optional files contain ranges that are used to exclude 
+# log lines, so you can filter out log lines that you don't want
+# to submit to DShield.
+#
+# IP addresses
+source_exclude=/etc/dshield-source-exclude.lst
+target_exclude=/etc/dshield-target-exclude.lst
+
+#
+# Ports
+source_port_exclude=/etc/dshield-source-port-exclude.lst
+target_port_exclude=/etc/dshield-target-port-exclude.lst
+
+# Replace the first byte of the target IP with '10.'
+# Note that if you set this to 'Y' then DShield won't send FightBack
+# abuse reports on your behalf, even if you have enabled FightBack in your
+# user profile.  (Because ISPs require a valid target IP before they will
+# investigate.) 
+
+obfus=N
+
+# This file is used to keep track of the time stamp of the last valid log
+# line you submitted.
+# If logs are not rotated so that only new lines are submitted to DShield
+# Hint.  Delete this file after you are done configuring and testing.
+# Or between each run while you are configuring and testing.
+#
+# This is really the time stamp of the last log line processed in
+# yyyymmddhhmmss format, so you can manually edit this if you need to
+# reset where processing will start.
+
+linecnt=/tmp/dshield.cnt
+
+# Setting these to "Y" makes the client spit out a lot of stuff
+# to standard output, some of which may be helpful.
+# If these are set to "N", then the client will only print serious
+# errors.
+
+verbose=N
+debug=N
+
+# There are 3 different types of 'rotation':
+#  N - No rotation                           Don't do anything to the log file
+#
+#  Y - rename the log file to 'logfile.bak'  The contents of any existing
+#                                            'logfile.bak' will be lost!
+#                                            You probably don't want to do this.
+#                                            unless you are really short on
+#                                            disk space.
+#
+#  A - append the log file to 'logfile.bak'  This is much safer.
+#
+#  (If you let your system do log rotation, then this client will
+#   miss log lines right after the rotation.  But if we do the rotation....)
+#
+#  Note this has nothing to do with the system's log rotation.  The client
+#  will not look in, for instance, /var/log/messages.1, etc.  The rotate 
+#  variable only controls if this script will rotate the log file.
+
+rotate=N
+
+# 'tz' is the time zone (relative to GMT). 
+# by default, it is retrieved automatically and does not
+# have to be set here, unless you are processing logs 
+# that were collected in a differen time zone.
+# 
+# tz=-04:00
+
+# tmp file.  Is created during processing and erased after we are done.
+# The default is /tmp/dshield.PID.tmp  (PID is the Process ID)
+
+# tmpfile=/tmp/dshield.tmp
+
+# (For Portsentry, too.)
+# If you are using the tpfw parser (Tiny Personal Firewall), then your log lines
+# will not contain a target ip address.  However, they will list the machine name
+# that sent the syslog entry to your logging server.  For example, entries sent 
+# from a machine named samantha would begin something like 
+# "Feb 28 09:06:43 samantha Rule "
+#
+# In order to get your logs into an acceptable format, you need to supply a 
+# dshield.cnf entry that will tell the script what ip address to use for any 
+# entries coming from a particular machine.  Note:  You can have a single script 
+# process entries from multiple machines if there are entries from more than
+# one machine in the logs.  Also note that this means that this 
+# script is unusable if you do not have a fixed ip address.  If the samantha machine
+# in the example above had a static ip of 10.134.23.197, then your dshield.cnf entry 
+# would be
+
+#samantha=10.134.23.197

@@ -1,0 +1,74 @@
+#
+# Configuration file for testing DShield framework client
+# With stripped down comments.  See dshield.conf for complete comments
+# Filenaming variables are set to point to the current directory
+#
+# echo "20011201000000" >  dshield.cnt
+# ./{scriptname}.pl -config=./test.cnf > debug.txt
+#
+# output.txt will contain the converted log that would be sent to DShield
+# debug.txt will contain the debugging output (shows how it processed)
+
+# Name of the log file. This should be the syslog as this
+# client processes 'syslog' reports.  Unless your firewall logs go to 
+# a different file....
+
+log=/var/log/messages
+
+# Log lines might need to match this regex (See dshield.cnf for
+# more explanation)
+# line_filter=
+# Log lines will be excluded if they match this regex
+# line_exclude=
+
+# Output will go to this file (for testing)
+whereto=./output.txt
+
+# Make whereto=MAIL to actually send to DShield as email
+# wherto=MAIL
+# Then you must set these variables so they are valid
+from=nobody@nowhere.com
+userid=0
+to=report@dshield.org
+cc=
+bcc=
+sendmail=/usr/sbin/sendmail -oi -t
+
+# IPs and ports are excluded based on these files
+source_exclude=./dshield-source-exclude.lst
+target_exclude=./dshield-target-exclude.lst
+source_port_exclude=./dshield-source-port-exclude.lst
+target_port_exclude=./dshield-target-port-exclude.lst
+
+# Timestamp of last log line processed
+linecnt=./dshield.cnt
+
+# We do want to print lots of junk so we can see what is happening
+# This is a good thing!  At least when you first run the script.
+verbose=Y
+debug=Y
+
+# See dshield.cnf for explanations for these.  Otherwise leave them the
+# way they are here.
+rotate=N
+obfus=N
+# tz=-04:00
+# tmpfile=/tmp/dshield.tmp
+
+# (For Portsentry, too)
+# If you are using the tpfw parser (Tiny Personal Firewall), then your log lines
+# will not contain a target ip address.  However, they will list the machine name
+# that sent the syslog entry to your logging server.  For example, entries sent 
+# from a machine named samantha would begin something like "Feb 28 09:06:43 samantha Rule "
+#
+# In order to get your logs into an acceptable format, you need to supply a 
+# dshield.cnf entry that will tell the script what ip address to use for any 
+# entries coming from a particular machine.  Note:  You can have a single script 
+# process entries from multiple machines if there are entries from more than
+# one machine in the logs.  Also note that this means that this 
+# script is unusable if you do not have a fixed ip address.  If the samantha machine
+# in the example above had a static ip of 10.134.23.197, then your dshield.cnf entry 
+# would be
+
+#samantha=10.134.23.197
+

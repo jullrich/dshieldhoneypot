@@ -1,0 +1,31 @@
+#
+# Source IPs you would like to exclude. Good options
+# are hosts which you frequently use to scan your 
+# own network.
+# 
+# Specify as either individual IPs (24.61.22.3)
+# Or as a range (127.0.0.0 - 127.255.255.255)
+# Or in 127.0.0.0/8 format
+#
+
+# Common local (hopefully) junk we don't want to bother with.  (We can't
+# trace it anyway.)
+#
+
+0.0.0.0
+#127.0.0.0/8 is the same as 127.0.0.0 - 127.255.255.255
+127.0.0.0/8
+255.255.255.255
+
+# Reserved private IP ranges
+#
+
+#10.0.0.0 - 10.255.255.255
+#169.254.0.0 - 169.254.255.255
+#172.16.0.0 - 172.31.255.255
+#192.168.0.0 - 192.168.255.255
+
+10.0.0.0/8
+169.254.0.0/16
+172.16.0.0/12
+192.168.0.0/16

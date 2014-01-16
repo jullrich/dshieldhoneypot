@@ -1,0 +1,7 @@
+#
+#  Source ports you would like to exclude
+#
+#  Enter either single ports or a range of ports
+# 
+# 25
+# 1000 - 1003

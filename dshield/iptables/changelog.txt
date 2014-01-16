@@ -1,0 +1,109 @@
+
+#  DShield Framework Project Changelog
+
+#	October 12, 2008 Patched pf parser for pfSense, by Klaus Lichtenwalder
+#		(Patched version was renamed to be 'pfsense'. Unpatched is still 'pf')
+#		Submitted by Raman Gupta
+#	March 19, 2008 Updated pf parser for OpenBSD, by Robert Grabowsky
+#	January 28,2008 New parser for Netscreen
+#	August 19, 2006 Updated version of Sonicwall parser.
+#	August 07, 2006 New Sonicwall parser.  Thanks to Daniel G. Kluge
+#	September 28, 2005  New Netgear FR114P parser.  Thanks to John Gill.
+#	April 14, 2005 New D-Link DI604 parser.  Thanks to Ingvar Berg
+#	February 23, 2004 New Foundry Networks ServerIron parser.  Thanks to
+#		Martin Rud Jakobsen
+#	February 10, 2003 New Portsentry parser, to match the log format that
+#		Portsentry now writes.
+#	February 6, 2003 New improved linksys.c SMNPTrap catcher for linksys
+#		converter.  Thanks to Jim Conner
+#	December 17, 2002 - Fixed snort_portscan parser that was not converting
+#		all the log lines that it should have. 
+#	October 23, 2002 - Updated regexes in Cisco parser to allow more valid 
+#		log lines
+#	August 23, 2002 - Updated gnatbox parser.
+#	August 22, 2002 - Rewrote snort_18_syslog parser to be less restrictive.
+#	  It was failing valid log lines.
+#	August 8, 2002
+#	- New Gnatbox parser contributed by Phil Dye
+#	- Cisco parser:  Changed 'inside:' matches to '\w+:' in regexes at
+#	  Dave Fogarty's suggestion.
+#	May 23, 2002
+#	- New Checkpoint FW1-41 parser, to deal with more recent FW-1 log formats
+#	  Also fix for framework.pl so that it doesn't attempt to load the whole
+#	  log file into memory.  Now it only loads the line that it is processing.
+#	  Both were contributed by Shane Castle.
+#	May 4, 2002
+#	- Added parser for OpenBSD Packet Filter
+#	April 27, 2002
+#	- Added parser for Gauntlet firewall
+#	April 25, 2002
+#	- Fixed regex in ipf parser so it works with ICMP logs
+#	  Fixed bug in routine that loads exclude files that required that
+#	  the one of the exclude files exist.
+#	April 16, 2002
+#	- Updated ipf parser to also accept dates like "Apr 16", in addition to 
+#	  the "16/04/2002" format
+#	March 28, 2002
+#	- Consolodated Cisco PIX and Cisco ACL scripts into Cisco.  Updated
+#	  parsing logic.
+#	- Added belated support for 'last message repeated NN times'
+#	- Introduced $reason_skipped variable so that parsers can give a reason
+#	  why a line is skipped.  This makes getting a client working easier if
+#	  the parser reports why it is failing to parse lines.
+#	March 2, 2002
+#	- New 'tpfw' parser that supports the Tiny Firewall when used in
+#	  remote syslogging mode.   You can now capture the output of
+#	  multiple Windows machines that use Tiny on a *NIX syslog.
+#	  More information is in tpfw.pl.
+#	  Thanks to Tim Rushing for this.  
+#	January 25, 2002
+#	- The hardwired filter in the iptables parser was too restrictive
+#         Changed it to be "kernel:"  You should also put "DENY" (or
+#	  "REJECT") in the line_filter variable in the configuration file.
+#	January 17, 2002
+#	- Fixed formatting of subject line so it agrees with
+#	  http://www.dshield.org/specs.php
+#	January 4, 2002
+#	- Fix bug that prevented setting line_filter and line_exlude 
+#	  variables.  Thanks to Tim Rushing for point this out.
+#	January 4, 2002
+#	- Added date sanity checking.
+#	January 2, 2002
+#	- Added Portsentry parser
+#	December 28, 2001
+#	- Added support for 127.0.0.0/8 format in IP exclusion lists
+#	- Added linksys router parser (and included the linksys.c daemon)
+#	December 27, 2001
+#	 - Added fw1_41 parser for Checkpoint FW-1 4.1
+#	 - Fixed validation so it accepts "???" for protocol
+#	December 22, 2001
+#	- Added more verbose parser validation error reporting
+#	December 21, 2001
+#	- Added source and target port exclusions
+#	- Elaborated on debug and verbose printing
+#	- Distributed to http://www.dshield.org/framework.php
+#	December 19, 2001
+#	- Added Cisco PIX parser
+#	December 18, 2001
+#	- Added support for ranges for source and target IP exclusions
+#	- Added ipchains and iptables parsers
+#	- Added '$wherto' variable in config file to define how the output
+#	  is disposed of.
+#	- Added line_filter variable.  Regex that log lines must match
+#	- Added line_exclude varlable  Regex that excludes log lines
+#	- Added '$format' variable to trigger sending certain formats
+#	  in their native format (This is not in the config file)
+#	- Added more debug and verbose print statements
+#
+#	Aug 11, 2001
+#	- added more verbose capabilites for troubleshooting
+#	- trimmed spaces from config file parameters
+#	- changed some variables for readability
+#	- trimmed spaces from IP exclusion input
+#	- added debug option for more output information
+#	- ignore blank lines in config and exclusion files
+#	- standardized the error and status messages
+#	Aug 9, 2001
+#	- added check for "Blocked" text in log line
+#	- corrected timezone calculation routine
+#	- added missing \n to some of the die lines

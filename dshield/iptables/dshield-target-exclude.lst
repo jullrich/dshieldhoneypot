@@ -1,0 +1,21 @@
+#
+# List target IPs which you would like to exclude. 
+# 
+
+# Common local (hopefully) junk that we arn't interested in, and can't 
+# trace anyway.
+#
+
+0.0.0.0
+127.0.0.0 - 127.255.255.255
+255.255.255.255
+
+# Private reserved IP ranges.
+# Not enabled by default for target because a lot of machines have a 
+# private IP address.   Hence, it isn't good to exclude them by default.
+#
+
+#10.0.0.0 - 10.255.255.255
+#169.254.0.0 - 169.254.255.255
+#172.16.0.0 - 172.31.255.255
+#192.168.0.0 - 192.168.255.255
