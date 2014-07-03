@@ -32,7 +32,7 @@ authkey=$(dialog  --output-fd 1 --title "DShield Sensor Configuration" --inputbo
 parts=$(dialog --output-fd 1 --title "DShield Sensor Components" --checklist "Select enabled sensors" 15 50 5 1 "iptables logs (IPv4)" on 2 "ip6tables logs (IPv6)" on 3 "Web Honeypot" on 4 "404 Logs" on  5 "Kippo Logs" on)
 
 if echo $parts | grep -q '[12]' ; then
-    log=$(dialog --output-fd 1 --title "iptables Configuration IPv4" --inputbox "Log File" 10 50 /var/log/ufw.log)
+    log=$(dialog --output-fd 1 --title "iptables Configuration IPv4" --inputbox "Firewall Log File" 10 50 /var/log/ufw.log)
 fi
 
 
