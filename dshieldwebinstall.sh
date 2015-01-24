@@ -1,5 +1,5 @@
 #!/bin/bash
-#10 December 2014
+# 24 Jan 2015
 # Shell script to install dshield web application honeypot
 # Will prompt user for install path and username and password - 
 # password will be hashed on the end of the script
@@ -67,8 +67,10 @@ get_dshieldCreds(){
 }
 
 unzip_tar() {
-    wget 'https://webhoneypot.googlecode.com/files/webhoneypot.0.1.r123.tgz'
-    tar -xvf webhoneypot.0.1.r123.tgz -C $arg1/
+    #wget 'https://webhoneypot.googlecode.com/files/webhoneypot.0.1.r123.tgz'
+    #tar -xvf webhoneypot.0.1.r123.tgz -C $arg1/
+    git clone https://github.com/mweeks9989/dshieldwebhoneypot $arg1/
+	git clone https://github.com/mweeks9989/dshieldwebsignature $arg1/templates/
 }
 
 get_distribution_type() {
@@ -105,6 +107,37 @@ get_distribution_type() {
     fi
     echo $dtype
 }
+
+run_apache() {
+	if [ $arg1 != "" ]
+		#echo -n "What port would you like to run Apache2 on?"
+		#read port
+		sed '/Listen/a  Listen $arg1' /etc/apache2/ports.conf
+	fi
+
+	if [ $apacherunning == "root" ]; then
+		www-data=$(cat /etc/passwd | grep www-data:/var/www)
+		if [ $www-data == "" ]; then
+			sudo useradd -g www-data -s /usr/sbin/nologin -m -d /var/www/
+		fi
+		export HTTPD_ENV_NAME="www-data"
+	fi
+
+	httpd -k stop
+	httpd -k start -c $installdir
+
+	apacherunning=$(ps aux | grep apache | wc -l)
+
+	if [ $apacherunning -le 1 ]; then
+		if [ $(sh -n /etc/apache2/envvars && echo Syntax OK || echo FAIL) == "FAIL" ]; then
+			echo "Apache2 not started correctly check environment variables"
+		else
+			echo "apache2 does not appear to have started as a service - you may want to look at some of your settings in your .conf file."
+			echo "or you're not running debian based OS, which the script should have caught, sorry."
+		fi
+	fi
+}
+
 echo "Hello,this script will install the dshield honeypot for you."
 
 if ask "Do you have credentials from https://www.dshield.org? (Y/n)" Y; then
@@ -167,8 +200,34 @@ if [ -d config.local ]; then
     sudo mv -f config.local $dir/etc/config.local
 fi
 
+#write out current crontab
+crontab -l > mycron
+#echo new cron into cron file
+$job="0 3 * * * cd $installdir && git pull"
+if [ $(cat mycron) != "*$job*" ]; then
+    echo "0 3 * * * $job" >> mycron
+    #install new cron file
+    crontab mycron
+    rm mycron
+fi
+
 #Find out who's running the web app
 mv -f /opt/webhoneypot/html/index.php /var/www/html/index.php
 currentuser=$(whoami)
-apacherunning=$(ps aux | grep apache)
+apacherunning=$(ps aux | grep apache | wc -l)
 apacheuser=$($apacherunning | awk '{ print $1 }' | sort | uniq | grep -v root | grep -v $currentuser)
+if [ $apacherunning -gt 1 ]; then
+    run_apache
+elif [ $apacherunning == "root" ]; then
+    if ask "You are running apache as root, this is dangerous would you like to run as another user? (Y/n)" Y; then
+        run_apache
+    fi
+else
+    if ask "I see you have apache running, would you like to initiate the dshieldwebhoneypot on another port? (N/y)" N; then
+		exit 1
+    else 
+		echo -n "What port would you like to run Apache2 on?"
+		read port
+        run_apache $port
+    fi
+fi
