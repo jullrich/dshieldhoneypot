@@ -1,5 +1,5 @@
 #!/bin/bash
-# 24 Jan 2015
+# 04 April 2015
 # Shell script to install dshield web application honeypot
 # Will prompt user for install path and username and password - 
 # password will be hashed on the end of the script
@@ -109,22 +109,24 @@ get_distribution_type() {
 }
 
 run_apache() {
-	if [ $arg1 != "" ]
-		#echo -n "What port would you like to run Apache2 on?"
+    if [ -z ${arg1+x} ]; then
+	        echo "Apache will run on the default port(s)."	
+        else
+                #echo -n "What port would you like to run Apache2 on?"
 		#read port
 		sed '/Listen/a  Listen $arg1' /etc/apache2/ports.conf
 	fi
 
-	if [ $apacherunning == "root" ]; then
-		www-data=$(cat /etc/passwd | grep www-data:/var/www)
-		if [ $www-data == "" ]; then
+	if [ $apacheuser = "root" ]; then
+		wwwdata=$(cat /etc/passwd | grep www-data:/var/www)
+		if [ -z "$wwwdata"  ]; then
 			sudo useradd -g www-data -s /usr/sbin/nologin -m -d /var/www/
 		fi
 		export HTTPD_ENV_NAME="www-data"
 	fi
 
-	httpd -k stop
-	httpd -k start -c $installdir
+	apachectl stop
+	apachectl start
 
 	apacherunning=$(ps aux | grep apache | wc -l)
 
@@ -201,30 +203,32 @@ if [ -d config.local ]; then
 fi
 
 #write out current crontab
-crontab -l > mycron
+crontab -l -u www-data > mycron
 #echo new cron into cron file
-$job="0 3 * * * cd $installdir && git pull"
-if [ $(cat mycron) != "*$job*" ]; then
-    echo "0 3 * * * $job" >> mycron
+job="0 3 * * * cd $installdir && git pull"
+if [ -f ./mycron  ]; then
+    echo "$job" >> mycron
     #install new cron file
-    crontab mycron
+    crontab mycron -u www-data
     rm mycron
 fi
 
 #Find out who's running the web app
-mv -f /opt/webhoneypot/html/index.php /var/www/html/index.php
+if [ -d /opt/webhoneypot/html/index.php ]; then
+    mv -f /opt/webhoneypot/html/index.php /var/www/html/index.php
+fi
 currentuser=$(whoami)
-apacherunning=$(ps aux | grep apache | wc -l)
-apacheuser=$($apacherunning | awk '{ print $1 }' | sort | uniq | grep -v root | grep -v $currentuser)
-if [ $apacherunning -gt 1 ]; then
+
+apacheuser=$(ps aux | grep apache | wc -l | awk '{ print $1 }' | sort | uniq | grep -v root | grep -v $currentuser)
+if [ "$(ps aux | grep apache | wc -l)" -gt 1 ]; then
     run_apache
-elif [ $apacherunning == "root" ]; then
+elif [ $apacheuser == "root" ]; then
     if ask "You are running apache as root, this is dangerous would you like to run as another user? (Y/n)" Y; then
         run_apache
     fi
 else
     if ask "I see you have apache running, would you like to initiate the dshieldwebhoneypot on another port? (N/y)" N; then
-		exit 1
+		exit 0
     else 
 		echo -n "What port would you like to run Apache2 on?"
 		read port
